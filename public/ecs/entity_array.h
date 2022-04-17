@@ -25,7 +25,6 @@ namespace ztech::ecs
             size_t reserved_count;
 
             std::shared_mutex component_arrays_mutex;
-            std::atomic< entity_id_t > last_id;
             std::atomic< size_t > entity_count;
             std::vector< entity_id_t > free_ids;
 
@@ -103,8 +102,6 @@ namespace ztech::ecs
 
             void for_each( std::function< void( entity_id_t ) > in_func );
 
-            inline entity_id_t get_last_id( ) const { return last_id - 1; }
-
             inline size_t size( ) const { return entity_count; }
 
             /*
@@ -112,7 +109,7 @@ namespace ztech::ecs
             inline void for_each_parallel( std::function< void( entity_id_t ) > func )
             {
                 std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
-                const entity_id_t size = last_id;
+                const entity_id_t size = entity_count;
                 const size_t part_size = size / N;
                 entity_id_t start_id = 0;
                 std::array< std::unique_ptr< std::thread >, N > threads;
