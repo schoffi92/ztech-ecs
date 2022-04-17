@@ -57,10 +57,6 @@ ztech::ecs::entity_array entities;
 
 auto id = entities.alloc( ); // allocate only one
 entities.free( id );
-
-// allocate 100 entitities
-std::vector< ztech::ecs::entity_id_t > ids;
-entities.alloc( ids, 100 );
 ```
 
 ## Iterating through entities
@@ -75,6 +71,12 @@ entities.for_each( []( ztech::ecs::entity_id_t id )
 {
     // also the invalid entities will be filtered out
     // do something
+    auto loc_comp = entities.get_component< car_location_t >( ); // asking for component array
+    car_movement_t* mov_comp = entities.get_component_data< car_movement_t >( id ); // asking for the data from the component
+    ( *loc_comp )[ id ].x = 10.0f;
+    loc_comp->at( id ).y = 10.0f;
+
+    mov_comp->vx = 10.0f;
+    mov_comp->vy = 12.0f;
 });
 ```
-

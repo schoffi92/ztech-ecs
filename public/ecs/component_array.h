@@ -48,15 +48,18 @@ namespace ztech::ecs
         inline T& at( entity_id_t id ) { return datas[ id ]; }
 
         inline T& operator[]( entity_id_t id ) { return datas[ id ]; }
-        inline decltype( datas )& get_array( ) { return datas; }
+        //inline decltype( datas )& get_array( ) { return datas; }
 
         /**
          * Replacing the component datas
          */
-        inline void replace( std::vector< T >&& in_datas ) { datas = std::move( in_datas ); }
-        inline void insert( const T& in_data ) { datas.push_back( in_data ); }
-        inline void insert( T&& in_data ) { datas.push_back( std::move( in_data ) ); }
+        //inline void replace( std::vector< T >&& in_datas ) { datas = std::move( in_datas ); }
+        //inline void insert( const T& in_data ) { datas.push_back( in_data ); }
+        //inline void insert( T&& in_data ) { datas.push_back( std::move( in_data ) ); }
 
+        /**
+         * Get Type Name
+         */
         inline const char* get_type_name( ) const { return typeid( T ).name( ); }
     };
 };
