@@ -51,10 +51,17 @@ namespace ztech::ecs
 
                 for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )
                 {
-                    arr->for_each( [&arr, &it]( entity_id_t id )
-                    {
-                        ( *it )( arr, id );
-                    }, start, end );
+                    arr->for_each( std::bind( *it, arr, std::placeholders::_1 ), start, end );
+                }
+            }
+
+            template< std::size_t N >
+            inline void execute_parallel( entity_array* arr )
+            {
+                if ( ! test( arr ) ) return;
+                for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )
+                {
+                    arr->for_each_parallel< N >( std::bind( *it, arr, std::placeholders::_1 ) );
                 }
             }
     };
