@@ -102,8 +102,7 @@ void ztech::ecs::entity_array::for_each( std::function< void( entity_id_t ) > in
 {
     auto valid_comp = get_component< entity_validation_t >( );
     std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
-    entity_id_t size = entity_count;
-    for ( entity_id_t id = 0; id < size; id++ )
+    for ( entity_id_t id = 0; id < valid_comp->size( ); id++ )
     {
         if ( valid_comp->at( id ).valid ) in_func( id );
     }

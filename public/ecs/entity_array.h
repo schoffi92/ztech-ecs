@@ -94,8 +94,7 @@ namespace ztech::ecs
                 {
                     for ( entity_id_t id = 0; id < comp->size( ); id++ )
                     {
-                        if ( ! valid_comp->at( id ).valid ) continue;
-                        func( id, comp->at( id ) );
+                        if ( valid_comp->at( id ).valid ) func( id, comp->at( id ) );
                     }
                 }
             }
