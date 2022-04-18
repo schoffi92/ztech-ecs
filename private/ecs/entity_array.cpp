@@ -98,11 +98,14 @@ void ztech::ecs::entity_array::free( entity_id_t id )
     free_ids.push_back( id );
 }
 
-void ztech::ecs::entity_array::for_each( std::function< void( entity_id_t ) > in_func )
+void ztech::ecs::entity_array::for_each( std::function< void( entity_id_t ) > in_func, size_t start, size_t end )
 {
     auto valid_comp = get_component< entity_validation_t >( );
     std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
-    for ( entity_id_t id = 0; id < valid_comp->size( ); id++ )
+    if ( end == 0 ) end = valid_comp->size( );
+    if ( start >= end ) return;
+
+    for ( entity_id_t id = start; id < end; id++ )
     {
         if ( valid_comp->at( id ).valid ) in_func( id );
     }

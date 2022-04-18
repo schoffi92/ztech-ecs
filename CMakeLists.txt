@@ -3,6 +3,7 @@ cmake_minimum_required( VERSION "3.7.1" )
 set( VERSION 1.0.0 )
 
 project( "ZTech" VERSION ${VERSION} )
+option(ENABLE_TESTS "Enable tests" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -15,7 +16,8 @@ include_directories(
 add_library( "ztech.ecs" STATIC "${SRC}" )
 #add_executable( "ecstest" "${SRC}" )
 
-if( BUILD_TESTING )
+if( ENABLE_TESTS )
+    enable_testing( )
     MESSAGE( "Adding UnitTests" )
     add_executable( "ecstest" "unit_test/main.cpp" "${SRC}" )
     add_test( "UnitTest" "ecstest" )
@@ -25,4 +27,7 @@ if( BUILD_TESTING )
 
     add_executable( "ecsallocone" "unit_test/check_entity_one_alloc.cpp" "${SRC}" )
     add_test( "EcsAllocOne" "ecsallocone" )
+
+    add_executable( "ecssysreg" "unit_test/check_system_def.cpp" "${SRC}" )
+    add_test( "EcsSysReg" "ecssysreg" )
 endif( )

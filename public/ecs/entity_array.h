@@ -57,6 +57,17 @@ namespace ztech::ecs
             /**
              * Get component array by typename
              */
+            inline std::shared_ptr< icomponent_array_interface > get_component( const char* type_name )
+            {
+                std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
+                auto it = component_arrays.find( type_name );
+                if ( it != component_arrays.end( ) ) return it->second;
+                return nullptr;
+            }
+
+            /**
+             * Get component array by typename
+             */
             template< typename T >
             inline std::shared_ptr< component_array< T > > get_component( )
             {
@@ -136,7 +147,7 @@ namespace ztech::ecs
              * Iterating through valid entity ids
              * @param in_func
              */
-            void for_each( std::function< void( entity_id_t ) > in_func );
+            void for_each( std::function< void( entity_id_t ) > in_func, size_t start = 0, size_t end = 0 );
 
             /**
              * Get Valid Entity Count
