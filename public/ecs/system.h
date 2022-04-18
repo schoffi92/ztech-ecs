@@ -2,6 +2,7 @@
 
 #include "ecs_types.h"
 #include "entity_array.h"
+#include <memory>
 #include <functional>
 #include <set>
 
@@ -10,7 +11,7 @@ namespace ztech::ecs
     class system
     {
         private:
-            typedef std::function< void( entity_array*, entity_id_t ) > func_t;
+            typedef std::function< void( std::shared_ptr< entity_array >, entity_id_t ) > func_t;
             std::set< const char* > required_components;
             std::vector< func_t > functions;
 
@@ -34,7 +35,7 @@ namespace ztech::ecs
                 functions.push_back( in_func );
             }
 
-            inline bool test( entity_array* arr )
+            inline bool test( std::shared_ptr< entity_array > arr )
             {
                 for ( auto type_name : required_components )
                 {
@@ -43,7 +44,7 @@ namespace ztech::ecs
                 return true;
             }
 
-            inline void execute( entity_array* arr, size_t start = 0, size_t end = 0 )
+            inline void execute( std::shared_ptr< entity_array > arr, size_t start = 0, size_t end = 0 )
             {
                 if ( ! test( arr ) ) return;
                 if ( end == 0 ) end = arr->size( );
@@ -56,7 +57,7 @@ namespace ztech::ecs
             }
 
             template< std::size_t N >
-            inline void execute_parallel( entity_array* arr )
+            inline void execute_parallel( std::shared_ptr< entity_array > arr )
             {
                 if ( ! test( arr ) ) return;
                 for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )

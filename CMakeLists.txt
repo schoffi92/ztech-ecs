@@ -30,4 +30,7 @@ if( ENABLE_TESTS )
 
     add_executable( "ecssysreg" "unit_test/check_system_def.cpp" "${SRC}" )
     add_test( "EcsSysReg" "ecssysreg" )
+
+    add_executable( "ecscomposer" "unit_test/check_composer.cpp" "${SRC}" )
+    add_test( "EcsComposer" "ecscomposer" )
 endif( )

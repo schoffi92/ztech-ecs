@@ -11,12 +11,6 @@
 
 namespace ztech::ecs
 {
-    struct entity_validation_t
-    {
-        bool valid = false;
-        void* linked_data = nullptr;
-    };
-
     class entity_array
     {
         private:
