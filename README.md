@@ -91,3 +91,22 @@ entities.for_each_parallel< 2 >( []( ztech::ecs::entity_id_t id )
     // do something
 });
 ```
+
+## Remove multiple ids
+
+- Use for_each method to collect removable elements
+- call free with the vector
+- free unique lock the components ( so we cannot call free in for_each )
+
+Example:
+```c++
+std::vector< ztech::ecs::entity_id_t > removed_ids;
+entities.for_each( []( ztech::ecs::entity_id_t id )
+{
+    // also the invalid entities will be filtered out
+    // do something
+    if ( id % 2 == 1 ) removed_ids.push_back( id );
+});
+
+entities.free( removed_ids );
+```
