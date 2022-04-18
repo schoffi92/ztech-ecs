@@ -1,5 +1,7 @@
 #include "ecs/entity_array.h"
 #include "definitions.h"
+#include <atomic>
+#include <chrono>
 #include <set>
 
 ztech::ecs::entity_array global_entities;
@@ -50,6 +52,24 @@ int main( int argc, char* argv[] )
     }
 
     {
+        // Trying the parallel for
+        printf( "Trying to for_each parallel\n" );
+        std::atomic< size_t > count = 0;
+        auto start = std::chrono::steady_clock::now( );
+        global_entities.for_each_parallel< 2 >( [&count, &start]( ztech::ecs::entity_id_t _id )
+        {
+            using namespace std::chrono_literals;
+            ++count;
+            std::this_thread::sleep_until( start + 100ms );
+        });
+        auto end = std::chrono::steady_clock::now( );
+        auto dur = std::chrono::duration_cast< std::chrono::milliseconds >( end - start );
+        printf( "Time: %zu, Count: %zu\n", dur.count( ), count.load( ) );
+        if ( dur.count( ) >= 200 ) return 7;
+        if ( count != 2 ) return 7;
+    }
+
+    {
         // Counting Unique ids
         printf( "Release Entity ( %zu ) and keep ( %zu )\n", new_id, id );
         global_entities.free( new_id );
@@ -63,7 +83,24 @@ int main( int argc, char* argv[] )
             ids.insert( _id );
         });
         printf( "Counting Unique ids ( %zu )\n", ids.size( ) );
-        if ( ids.size( ) != 1 ) return 7;
+        if ( ids.size( ) != 1 ) return 8;
+    }
+
+    {
+        // Trying the parallel for
+        printf( "Trying to for_each parallel\n" );
+        std::atomic< size_t > count = 0;
+        auto start = std::chrono::steady_clock::now( );
+        global_entities.for_each_parallel< 2 >( [&count, &start]( ztech::ecs::entity_id_t _id )
+        {
+            using namespace std::chrono_literals;
+            ++count;
+            std::this_thread::sleep_until( start + 100ms );
+        });
+        auto end = std::chrono::steady_clock::now( );
+        auto dur = std::chrono::duration_cast< std::chrono::milliseconds >( end - start );
+        printf( "Time: %zu, Count: %zu\n", dur.count( ), count.load( ) );
+        if ( count != 1 ) return 7;
     }
 
     printf( "Success\n" );

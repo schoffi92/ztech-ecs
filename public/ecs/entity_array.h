@@ -31,6 +31,9 @@ namespace ztech::ecs
         public:
             entity_array( size_t reserved = 100 );
 
+            /**
+             * Register Component
+             */
             template< typename T >
             inline void register_component( )
             {
@@ -51,6 +54,9 @@ namespace ztech::ecs
                 component_arrays.insert( p );
             }
 
+            /**
+             * Get component array by typename
+             */
             template< typename T >
             inline std::shared_ptr< component_array< T > > get_component( )
             {
@@ -61,6 +67,11 @@ namespace ztech::ecs
                 return nullptr;
             }
 
+            /**
+             * Get Component Data
+             * Finding Data from component_array type with id
+             * @param id of the entity
+             */
             template< typename T >
             inline T* get_component_data( entity_id_t id )
             {
@@ -70,6 +81,10 @@ namespace ztech::ecs
                 return nullptr;
             }
 
+            /**
+             * Get Component Interface
+             * Finding Component_array_interface with component type
+             */
             template< typename T >
             inline std::shared_ptr< icomponent_array_interface > get_component_interface( )
             {
@@ -80,12 +95,30 @@ namespace ztech::ecs
                 return nullptr;
             }
 
+            /**
+             * Allocate one entity
+             */
             entity_id_t alloc( );
+
+            /**
+             * Allocate more than one entity
+             * @param out_entity_ids Allocated Entities' id
+             * @param in_count Entity count to allocate
+             */
             void alloc( std::vector< entity_id_t >& out_entity_ids, size_t in_count = 1 );
+
+            /**
+             * Free entity
+             * @param id to free
+             */
             void free( entity_id_t id );
 
+            /**
+             * Iterating through valid entities with a reference of a component
+             * @param in_func
+             */
             template< typename T >
-            inline void for_each( std::function< void( entity_id_t, T& ) > func )
+            inline void for_each( std::function< void( entity_id_t, T& ) > in_func )
             {
                 std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
                 auto valid_comp = get_component< entity_validation_t >( );
@@ -94,25 +127,42 @@ namespace ztech::ecs
                 {
                     for ( entity_id_t id = 0; id < comp->size( ); id++ )
                     {
-                        if ( valid_comp->at( id ).valid ) func( id, comp->at( id ) );
+                        if ( valid_comp->at( id ).valid ) in_func( id, comp->at( id ) );
                     }
                 }
             }
 
+            /**
+             * Iterating through valid entity ids
+             * @param in_func
+             */
             void for_each( std::function< void( entity_id_t ) > in_func );
 
+            /**
+             * Get Valid Entity Count
+             */
             inline size_t size( ) const { return entity_count; }
 
+            /**
+             * Get Registered components count
+             */
             inline size_t get_component_count( ) const { return component_arrays.size( ); }
 
+            /**
+             * Get count of released entities' id
+             */
             inline size_t get_free_id_count( ) const { return free_ids.size( ); }
 
-            /*
+            /**
+             * Iterating through valid entity ids parallel
+             * @param in_func
+             */
             template< std::size_t N >
             inline void for_each_parallel( std::function< void( entity_id_t ) > func )
             {
                 std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
-                const entity_id_t size = entity_count;
+                auto valid_comp = get_component< entity_validation_t >( );
+                const entity_id_t size = valid_comp->size( );
                 const size_t part_size = size / N;
                 entity_id_t start_id = 0;
                 std::array< std::unique_ptr< std::thread >, N > threads;
@@ -123,7 +173,10 @@ namespace ztech::ecs
                     else end_id = start_id + part_size;
                     threads[ thread_index ] = std::make_unique< std::thread >( [&]( entity_id_t start, entity_id_t end )
                     {
-                        for ( int index = start; index < end; index++ ) func( index );
+                        for ( int index = start; index < end; index++ )
+                        {
+                            if ( valid_comp->at( index ).valid ) func( index );
+                        }
                     }, start_id, end_id );
                 }
 
@@ -133,6 +186,5 @@ namespace ztech::ecs
                     threads[ thread_index ].reset( );
                 }
             }
-            */
     };
 };
