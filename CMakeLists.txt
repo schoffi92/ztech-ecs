@@ -15,7 +15,7 @@ include_directories(
 add_library( "ztech.ecs" STATIC "${SRC}" )
 #add_executable( "ecstest" "${SRC}" )
 
-if( CMAKE_TESTING_ENABLED )
+if( BUILD_TESTING )
     MESSAGE( "Adding UnitTests" )
     add_executable( "ecstest" "unit_test/main.cpp" "${SRC}" )
     add_test( "UnitTest" "ecstest" )
