@@ -11,6 +11,8 @@
 - Create Entity Array with entity_array
 - Register your components
 - One component can registered only once
+- Your component registration should be the first thing you do
+- After adding/releasing entities should not register any other components
 
 Example:
 ```c++
@@ -34,6 +36,7 @@ ztech::ecs::entity_array entities;
 
 ## Add entities
 
+- Locking the entities
 - Use alloc for allocate entities
 
 Example:
@@ -49,6 +52,7 @@ entities.alloc( ids, 100 );
 
 ## Free entity
 
+- Locking the entities
 - Use free for release entities
 
 Example:
