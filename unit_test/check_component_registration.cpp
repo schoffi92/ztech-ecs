@@ -20,8 +20,12 @@ int main( int argc, char* argv[] )
     // Check the components pointers
     printf( "Check components pointers\n" );
     auto loc_comp = global_entities.get_component< car_location_t >( );
+    auto loc_icomp = global_entities.get_component( typeid( car_location_t ).name ( ) );
     auto mov_comp = global_entities.get_component< car_movement_t >( );
+    auto mov_icomp = global_entities.get_component( typeid( car_movement_t ).name ( ) );
     if ( (void*)loc_comp.get( ) == (void*)mov_comp.get( ) ) return 3;
+    if ( (void*)loc_comp.get( ) != (void*)loc_icomp.get( ) ) return 3;
+    if ( (void*)mov_comp.get( ) != (void*)mov_icomp.get( ) ) return 3;
     if ( loc_comp.get( ) == nullptr ) return 3;
     if ( mov_comp.get( ) == nullptr ) return 3;
 
