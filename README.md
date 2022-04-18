@@ -83,4 +83,11 @@ entities.for_each( []( ztech::ecs::entity_id_t id )
     mov_comp->vx = 10.0f;
     mov_comp->vy = 12.0f;
 });
+
+// Iterating through entities with two thread
+entities.for_each_parallel< 2 >( []( ztech::ecs::entity_id_t id )
+{
+    // also the invalid entities will be filtered out
+    // do something
+});
 ```
