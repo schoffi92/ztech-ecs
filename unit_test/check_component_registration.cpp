@@ -19,6 +19,8 @@ int main( int argc, char* argv[] )
     auto loc_comp = global_entities.get_component< car_location_t >( );
     auto mov_comp = global_entities.get_component< car_movement_t >( );
     if ( (void*)loc_comp.get( ) == (void*)mov_comp.get( ) ) return 3;
+    if ( loc_comp.get( ) == nullptr ) return 3;
+    if ( mov_comp.get( ) == nullptr ) return 3;
 
     // Check components pointers
     auto loc = global_entities.get_component_data< car_location_t >( 0 );
