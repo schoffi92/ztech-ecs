@@ -109,4 +109,20 @@ entities.for_each( [&removed_ids]( ztech::ecs::entity_id_t id )
 });
 
 entities.free( removed_ids );
+
+// Parallel example
+std::vector< ztech::ecs::entity_id_t > removed_ids1;
+std::vector< ztech::ecs::entity_id_t > removed_ids2;
+entities.for_each_parallel< 2 >( [&removed_ids1, &remove_ids2]( ztech::ecs::entity_id_t id, size_t thread_id )
+{
+    // also the invalid entities will be filtered out
+    // do something
+    std::vector< ztech::ecs::entity_id_t >* removed_ids = nullptr;
+    if ( thread_id == 1 ) removed_ids = &remove_ids2;
+    else removed_ids = &remove_ids1;
+    if ( id % 2 == 1 ) removed_ids->push_back( id );
+});
+
+entities.free( removed_ids1 );
+entities.free( removed_ids2 );
 ```

@@ -202,5 +202,39 @@ namespace ztech::ecs
                     threads[ thread_index ].reset( );
                 }
             }
+
+            /**
+             * Iterating through valid entity ids parallel with thread id
+             * @param in_func
+             */
+            template< std::size_t N >
+            inline void for_each_parallel( std::function< void( entity_id_t, size_t ) > func )
+            {
+                std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
+                auto valid_comp = get_component< entity_validation_t >( );
+                const entity_id_t size = valid_comp->size( );
+                const size_t part_size = size / N;
+                entity_id_t start_id = 0;
+                std::array< std::unique_ptr< std::thread >, N > threads;
+                for ( int thread_index = 0; thread_index < N; thread_index++, start_id += part_size )
+                {
+                    entity_id_t end_id;
+                    if ( thread_index + 1 == N ) end_id = size;
+                    else end_id = start_id + part_size;
+                    threads[ thread_index ] = std::make_unique< std::thread >( [&]( entity_id_t start, entity_id_t end, size_t thread_id )
+                    {
+                        for ( int index = start; index < end; index++ )
+                        {
+                            if ( valid_comp->at( index ).valid ) func( index, thread_id );
+                        }
+                    }, start_id, end_id, thread_index );
+                }
+
+                for ( int thread_index = 0; thread_index < N; thread_index++ )
+                {
+                    threads[ thread_index ]->join( );
+                    threads[ thread_index ].reset( );
+                }
+            }
     };
 };
