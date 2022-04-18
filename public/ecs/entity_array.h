@@ -104,6 +104,8 @@ namespace ztech::ecs
 
             inline size_t size( ) const { return entity_count; }
 
+            inline size_t get_component_count( ) const { return component_arrays.size( ); }
+
             /*
             template< std::size_t N >
             inline void for_each_parallel( std::function< void( entity_id_t ) > func )

@@ -12,5 +12,14 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/public
 )
 
-#add_library( "ztech.ecs" STATIC "${SRC}" )
-add_executable( "ecstest" "${SRC}" )
+add_library( "ztech.ecs" STATIC "${SRC}" )
+#add_executable( "ecstest" "${SRC}" )
+
+if( CMAKE_TESTING_ENABLED )
+    MESSAGE( "Adding UnitTests" )
+    add_executable( "ecstest" "unit_test/main.cpp" "${SRC}" )
+    add_test( "UnitTest" "ecstest" )
+
+    add_executable( "ecsreg" "unit_test/check_component_registration" "${SRC}" )
+    add_test( "EcsReg" "ecsreg" )
+endif( )
