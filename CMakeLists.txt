@@ -20,6 +20,9 @@ if( BUILD_TESTING )
     add_executable( "ecstest" "unit_test/main.cpp" "${SRC}" )
     add_test( "UnitTest" "ecstest" )
 
-    add_executable( "ecsreg" "unit_test/check_component_registration" "${SRC}" )
+    add_executable( "ecsreg" "unit_test/check_component_registration.cpp" "${SRC}" )
     add_test( "EcsReg" "ecsreg" )
+
+    add_executable( "ecsallocone" "unit_test/check_entity_one_alloc.cpp" "${SRC}" )
+    add_test( "EcsAllocOne" "ecsallocone" )
 endif( )

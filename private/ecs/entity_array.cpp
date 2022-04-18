@@ -16,7 +16,7 @@ ztech::ecs::entity_id_t ztech::ecs::entity_array::alloc( )
     std::unique_lock< std::shared_mutex > lock( component_arrays_mutex );
     if ( free_ids.size( ) > 0 )
     {
-        auto id = *free_ids.end( );
+        auto id = free_ids.back( );
         free_ids.pop_back( );
         valid_comp->at( id ).valid = true;
         return id;
