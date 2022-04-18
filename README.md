@@ -101,7 +101,7 @@ entities.for_each_parallel< 2 >( []( ztech::ecs::entity_id_t id )
 Example:
 ```c++
 std::vector< ztech::ecs::entity_id_t > removed_ids;
-entities.for_each( []( ztech::ecs::entity_id_t id )
+entities.for_each( [&removed_ids]( ztech::ecs::entity_id_t id )
 {
     // also the invalid entities will be filtered out
     // do something
