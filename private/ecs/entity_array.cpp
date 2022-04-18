@@ -6,7 +6,7 @@ ztech::ecs::entity_array::entity_array( size_t reserved )
     entity_count = 0;
     register_component< entity_validation_t >( );
     component_arrays.reserve( 5 );
-    free_ids.reserve( 5 );
+    free_ids.reserve( reserved );
 }
 
 ztech::ecs::entity_id_t ztech::ecs::entity_array::alloc( )
@@ -96,6 +96,19 @@ void ztech::ecs::entity_array::free( entity_id_t id )
     --entity_count;
     valid_comp->at( id ).valid = false;
     free_ids.push_back( id );
+}
+
+void ztech::ecs::entity_array::free( const std::vector< entity_id_t >& ids )
+{
+    auto valid_comp = get_component< entity_validation_t >( );
+    std::unique_lock< std::shared_mutex > lock( component_arrays_mutex );
+    for ( auto it = std::begin( ids ); it != std::end( ids );  it++ )
+    {
+        if ( ! valid_comp->at( *it ).valid ) continue;
+        --entity_count;
+        valid_comp->at( *it ).valid = false;
+        free_ids.push_back( *it );
+    }
 }
 
 void ztech::ecs::entity_array::for_each( std::function< void( entity_id_t ) > in_func, size_t start, size_t end )

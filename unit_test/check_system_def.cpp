@@ -3,13 +3,26 @@
 #include "definitions.h"
 #include <atomic>
 #include <chrono>
+#include <cstdlib>
 #include <set>
 
 ztech::ecs::entity_array global_entities;
 
 void init_system( ztech::ecs::entity_array* arr, ztech::ecs::entity_id_t id )
 {
-    
+    auto lt = arr->get_component_data< car_lifetime_t >( id );
+    if ( ! lt->exists )
+    {
+        auto loc = arr->get_component_data< car_location_t >( id );
+        auto mov = arr->get_component_data< car_movement_t >( id );
+
+        loc->x  = float( std::rand( ) % 100 ) / 100.0f;
+        loc->y  = float( std::rand( ) % 100 ) / 100.0f;
+        mov->vx = float( std::rand( ) % 100 ) / 100.0f;
+        mov->vy = float( std::rand( ) % 100 ) / 100.0f;
+        lt->exists = true;
+        lt->born_at = std::chrono::steady_clock::now( );
+    }
 }
 
 void move_system( ztech::ecs::entity_array* arr, ztech::ecs::entity_id_t id )
@@ -23,12 +36,15 @@ void move_system( ztech::ecs::entity_array* arr, ztech::ecs::entity_id_t id )
 
 int main( int argc, char* argv[] )
 {
+    std::srand( std::time( nullptr ) );
+
     // Create System
     printf( "Creating System\n" );
     ztech::ecs::system move_sys;
     move_sys.require< car_location_t >( );
     move_sys.require< car_movement_t >( );
     move_sys.require< car_lifetime_t >( );
+    move_sys.register_function( init_system );
     move_sys.register_function( move_system );
 
     // Checking the requirement on entities

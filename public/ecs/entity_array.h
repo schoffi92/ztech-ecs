@@ -125,6 +125,11 @@ namespace ztech::ecs
             void free( entity_id_t id );
 
             /**
+             * Free entities
+             */
+            void free( const std::vector< entity_id_t >& ids );
+
+            /**
              * Iterating through valid entities with a reference of a component
              * @param in_func
              */
