@@ -69,7 +69,11 @@ void ztech::ecs::entity_array::alloc( std::vector< ztech::ecs::entity_id_t >& ou
     entity_id_t start_id = valid_comp->size( );
     entity_id_t end_id = start_id + count;
     for ( auto it = std::begin( component_arrays ); it != std::end( component_arrays ); it++ ) it->second->alloc( count );
-    for ( entity_id_t id = start_id; id < end_id; id++ ) valid_comp->at( id ).valid = true;
+    for ( entity_id_t id = start_id; id < end_id; id++ )
+    {
+        out_entity_ids.push_back( id );
+        valid_comp->at( id ).valid = true;
+    }
 }
 
 
@@ -104,6 +108,7 @@ void ztech::ecs::entity_array::free( const std::vector< entity_id_t >& ids )
     std::unique_lock< std::shared_mutex > lock( component_arrays_mutex );
     for ( auto it = std::begin( ids ); it != std::end( ids );  it++ )
     {
+        if ( ! valid_comp->size( ) <= *it ) continue;
         if ( ! valid_comp->at( *it ).valid ) continue;
         --entity_count;
         valid_comp->at( *it ).valid = false;
