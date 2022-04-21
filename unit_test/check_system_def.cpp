@@ -8,7 +8,7 @@
 
 std::shared_ptr< ztech::ecs::entity_array > global_entities;
 
-void init_system( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id )
+void init_system( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id, float deltaSeconds )
 {
     auto lt = arr->get_component_data< car_lifetime_t >( id );
     if ( ! lt->exists )
@@ -25,7 +25,7 @@ void init_system( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::e
     }
 }
 
-void move_system( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id )
+void move_system( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id, float deltaSeconds )
 {
     auto loc = arr->get_component_data< car_location_t >( id );
     auto mov = arr->get_component_data< car_movement_t >( id );

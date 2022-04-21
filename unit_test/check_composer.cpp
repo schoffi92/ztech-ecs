@@ -14,14 +14,14 @@ static std::shared_ptr< ztech::ecs::system > car_system;
 static std::atomic< int > system_excution_count = 0;
 
 
-void move_car( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id )
+void move_car( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id, float deltaSeconds )
 {
     //printf("move_car excuted on %zu\n", id );
     auto loc = arr->get_component_data< car_location_t >( id );
     auto mov = arr->get_component_data< car_movement_t >( id );
 
-    loc->x += mov->vx;
-    loc->y += mov->vy;
+    loc->x += mov->vx * deltaSeconds;
+    loc->y += mov->vy * deltaSeconds;
 
     ++system_excution_count;
 }

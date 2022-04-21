@@ -11,7 +11,7 @@ namespace ztech::ecs
     class system
     {
         private:
-            typedef std::function< void( std::shared_ptr< entity_array >, entity_id_t ) > func_t;
+            typedef std::function< void( std::shared_ptr< entity_array >, float, entity_id_t ) > func_t;
             std::set< const char* > required_components;
             std::vector< func_t > functions;
 
@@ -44,23 +44,23 @@ namespace ztech::ecs
                 return true;
             }
 
-            inline void execute( std::shared_ptr< entity_array > arr, size_t start = 0, size_t end = 0 )
+            inline void execute( std::shared_ptr< entity_array > arr, float deltaSeconds = 0.0f, size_t start = 0, size_t end = 0 )
             {
                 if ( ! test( arr ) ) return;
 
                 for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )
                 {
-                    arr->for_each< std::shared_ptr< entity_array > >( *it, arr, start, end );
+                    arr->for_each( std::bind( *it, arr, std::placeholders::_1, deltaSeconds ), start, end );
                 }
             }
 
             template< std::size_t N >
-            inline void execute_parallel( std::shared_ptr< entity_array > arr )
+            inline void execute_parallel( std::shared_ptr< entity_array > arr, float deltaSeconds = 0.0f )
             {
                 if ( ! test( arr ) ) return;
                 for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )
                 {
-                    arr->for_each_parallel< N >( std::bind( *it, arr, std::placeholders::_1 ) );
+                    arr->for_each_parallel< N >( std::bind( *it, arr, std::placeholders::_1, deltaSeconds ) );
                 }
             }
     };
