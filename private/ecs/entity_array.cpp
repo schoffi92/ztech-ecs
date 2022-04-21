@@ -98,7 +98,7 @@ void ztech::ecs::entity_array::free( entity_id_t id )
 
     // The entity is valid
     --entity_count;
-    valid_comp->at( id ).valid = false;
+    valid_comp->set( id, { } );
     free_ids.push_back( id );
 }
 
@@ -108,10 +108,10 @@ void ztech::ecs::entity_array::free( const std::vector< entity_id_t >& ids )
     std::unique_lock< std::shared_mutex > lock( component_arrays_mutex );
     for ( auto it = std::begin( ids ); it != std::end( ids );  it++ )
     {
-        if ( ! valid_comp->size( ) <= *it ) continue;
+        if ( valid_comp->size( ) <= *it ) continue;
         if ( ! valid_comp->at( *it ).valid ) continue;
         --entity_count;
-        valid_comp->at( *it ).valid = false;
+        valid_comp->set( *it, { } );
         free_ids.push_back( *it );
     }
 }
@@ -125,6 +125,9 @@ void ztech::ecs::entity_array::for_each( std::function< void( entity_id_t ) > in
 
     for ( entity_id_t id = start; id < end; id++ )
     {
-        if ( valid_comp->at( id ).valid ) in_func( id );
+        if ( valid_comp->at( id ).valid )
+        {
+            in_func( id );
+        }
     }
 }

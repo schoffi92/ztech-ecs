@@ -52,7 +52,7 @@ namespace ztech::ecs
 
                 for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )
                 {
-                    arr->for_each( std::bind( *it, arr, std::placeholders::_1 ), start, end );
+                    arr->for_each< std::shared_ptr< entity_array > >( *it, arr, start, end );
                 }
             }
 

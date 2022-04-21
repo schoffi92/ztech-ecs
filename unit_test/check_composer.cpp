@@ -16,6 +16,7 @@ static std::atomic< int > system_excution_count = 0;
 
 void move_car( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id )
 {
+    //printf("move_car excuted on %zu\n", id );
     auto loc = arr->get_component_data< car_location_t >( id );
     auto mov = arr->get_component_data< car_movement_t >( id );
 
@@ -54,6 +55,7 @@ int init_car_entities( )
     });
 
     if ( ids.size( ) != entity_count ) return 1;
+    if ( car_entities->size( ) != entity_count ) return 1;
     return 0;
 }
 
@@ -82,25 +84,83 @@ int main( int argc, char* argv[] )
         auto result = init_car_system( );
         if ( result != 0 ) return result;
     }
-    
-    printf( "Run Composer Tick with %zu cars\n", entity_count );
-    global_composer.register_link( car_entities, car_system );
-    global_composer.run( );
-    if ( system_excution_count.load( ) != entity_count )  return 2;
 
     {
-        system_excution_count = 0;
+        printf( "Run Composer Tick with %zu cars\n", entity_count );
+        global_composer.register_link( car_entities, car_system );
+        global_composer.run( );
+        if ( system_excution_count.load( ) != entity_count )  return 2;
+    }
+
+    {
+        printf( "Free Half Of Entities\n" );
         std::vector< size_t > release_ids( entity_count / 2 );
         std::iota( std::begin( release_ids ), std::end( release_ids ), 0 );
         car_entities->free( release_ids );
 
+        printf( "Released ids: [ " );
+        for ( auto id : release_ids )
+        {
+            printf( "%zu ", id );
+        }
+        printf("]\n");
+
+        if ( car_entities->size( ) != ( entity_count / 2 ) )
+        {
+            printf( "Entity Count ( %zu ) does not equal with %zu\n", car_entities->size( ), ( entity_count / 2 ) );
+            return 3;
+        }
+
+        if ( car_entities->get_free_id_count( ) != ( entity_count / 2 ) )
+        {
+            printf( "Free entity Count ( %zu ) does not equal with %zu\n", car_entities->size( ), ( entity_count / 2 ) );
+            return 3;
+        }
+    }
+
+    {
+        printf( "Count with ForEach\n" );
+        int count = 0;
+        car_entities->for_each( [&count]( ztech::ecs::entity_id_t id )
+        {
+            count++;
+        });
+
+        if ( count != ( entity_count / 2 ) )
+        {
+            printf( "Counted %zu, but it should be %zu\n", count, ( entity_count / 2 ) );
+            return 4;
+        }
+    }
+
+    {
+        printf( "Count with Template ForEach\n" );
+        int count = 0;
+        car_entities->for_each< int* >( []( int* count, ztech::ecs::entity_id_t id )
+        {
+            count[0]+=1;
+        }, &count );
+
+        if ( count != ( entity_count / 2 ) )
+        {
+            printf( "Counted %zu, but it should be %zu\n", count, ( entity_count / 2 ) );
+            return 4;
+        }
+    }
+
+    {
         printf( "Run Composer Tick with %zu car\n", entity_count / 2 );
-        global_composer.register_link( car_entities, car_system );
+        system_excution_count = 0;
+        if ( global_composer.get_links( ).size( ) != 1 )
+        {
+            printf( "Composer link count: %zu should be 1\n", global_composer.get_links( ).size( ) );
+            return 5;
+        }
         global_composer.run( );
         if ( system_excution_count.load( ) != ( entity_count / 2 ) )
         {
-            printf( "System Exectuion count is %zu, but it should be %zu\n", entity_count, ( entity_count / 2 ) );
-            return 3;
+            printf( "System Exectuion count is %zu, but it should be %zu\n", system_excution_count.load( ), ( entity_count / 2 ) );
+            return 5;
         }
     }
 

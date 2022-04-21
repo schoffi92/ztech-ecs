@@ -148,6 +148,24 @@ namespace ztech::ecs
              */
             void for_each( std::function< void( entity_id_t ) > in_func, size_t start = 0, size_t end = 0 );
 
+
+            template< typename... Args >
+            void for_each( std::function< void( Args..., entity_id_t) > in_func, Args... in_args, size_t start = 0, size_t end = 0 )
+            {
+                auto valid_comp = get_component< entity_validation_t >( );
+                std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
+                if ( end == 0 ) end = valid_comp->size( );
+                if ( start >= end ) return;
+
+                for ( entity_id_t id = start; id < end; id++ )
+                {
+                    if ( valid_comp->at( id ).valid )
+                    {
+                        in_func( in_args..., id );
+                    }
+                }
+            }
+
             /**
              * Get Valid Entity Count
              */

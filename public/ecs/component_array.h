@@ -48,6 +48,10 @@ namespace ztech::ecs
         inline T& at( entity_id_t id ) { return datas[ id ]; }
 
         inline T& operator[]( entity_id_t id ) { return datas[ id ]; }
+
+        inline void set( entity_id_t id, T&& in_data ) { datas[ id ] = std::move( in_data ); }
+        
+        inline void set( entity_id_t id, const T& in_data ) { datas[ id ] = in_data; }
         //inline decltype( datas )& get_array( ) { return datas; }
 
         /**
