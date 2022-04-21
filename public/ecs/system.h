@@ -11,7 +11,7 @@ namespace ztech::ecs
     class system
     {
         private:
-            typedef std::function< void( std::shared_ptr< entity_array >, float, entity_id_t ) > func_t;
+            typedef std::function< void( std::shared_ptr< entity_array >, entity_id_t, float ) > func_t;
             std::set< const char* > required_components;
             std::vector< func_t > functions;
 
