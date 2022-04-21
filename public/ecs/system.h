@@ -47,8 +47,6 @@ namespace ztech::ecs
             inline void execute( std::shared_ptr< entity_array > arr, size_t start = 0, size_t end = 0 )
             {
                 if ( ! test( arr ) ) return;
-                if ( end == 0 ) end = arr->size( );
-                if ( start >= end ) return;
 
                 for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )
                 {
