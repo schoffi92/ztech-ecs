@@ -7,6 +7,7 @@ void ztech::ecs::composer::run( )
     std::vector< std::unique_ptr< std::thread > > threads( composer_links.size( ) );
     int thread_index = 0;
     float deltaSeconds = get_delta_seconds( );
+    auto now = std::chrono::steady_clock::now( );
     for ( auto it = std::begin( composer_links ); it != std::end( composer_links ); it++ )
     {
         threads[ thread_index ] = std::make_unique< std::thread >( [&]( const composer_link_t& link )
@@ -24,5 +25,5 @@ void ztech::ecs::composer::run( )
         th->join( );
         th.reset( );
     }
-    last_run = std::chrono::steady_clock::now( );
+    last_run = std::move( now );
 }
