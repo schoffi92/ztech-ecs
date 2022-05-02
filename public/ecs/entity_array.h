@@ -3,11 +3,16 @@
 #include "ecs_types.h"
 #include "component_array.h"
 #include <atomic>
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <shared_mutex>
 #include <unordered_map>
 #include <thread>
+
+#if USING_CPP17
+#include <execution>    // This definied in c++17, but still not supported
+#endif
 
 namespace ztech::ecs
 {
@@ -150,7 +155,7 @@ namespace ztech::ecs
 
 
             template< typename... Args >
-            void for_each( std::function< void( Args..., entity_id_t) > in_func, Args... in_args, size_t start = 0, size_t end = 0 )
+            void for_each( std::function< void( entity_id_t, Args... ) > in_func, Args... in_args, size_t start = 0, size_t end = 0 )
             {
                 auto valid_comp = get_component< entity_validation_t >( );
                 std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
@@ -161,7 +166,7 @@ namespace ztech::ecs
                 {
                     if ( valid_comp->at( id ).valid )
                     {
-                        in_func( in_args..., id );
+                        in_func( id, in_args... );
                     }
                 }
             }
@@ -182,45 +187,12 @@ namespace ztech::ecs
             inline size_t get_free_id_count( ) const { return free_ids.size( ); }
 
             /**
-             * Iterating through valid entity ids parallel
-             * @param in_func
-             */
-            template< std::size_t N >
-            inline void for_each_parallel( std::function< void( entity_id_t ) > func )
-            {
-                std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
-                auto valid_comp = get_component< entity_validation_t >( );
-                const entity_id_t size = valid_comp->size( );
-                const size_t part_size = size / N;
-                entity_id_t start_id = 0;
-                std::array< std::unique_ptr< std::thread >, N > threads;
-                for ( int thread_index = 0; thread_index < N; thread_index++, start_id += part_size )
-                {
-                    entity_id_t end_id;
-                    if ( thread_index + 1 == N ) end_id = size;
-                    else end_id = start_id + part_size;
-                    threads[ thread_index ] = std::make_unique< std::thread >( [&]( entity_id_t start, entity_id_t end )
-                    {
-                        for ( int index = start; index < end; index++ )
-                        {
-                            if ( valid_comp->at( index ).valid ) func( index );
-                        }
-                    }, start_id, end_id );
-                }
-
-                for ( int thread_index = 0; thread_index < N; thread_index++ )
-                {
-                    threads[ thread_index ]->join( );
-                    threads[ thread_index ].reset( );
-                }
-            }
-
-            /**
              * Iterating through valid entity ids parallel with thread id
              * @param in_func
              */
             template< std::size_t N >
-            inline void for_each_parallel( std::function< void( entity_id_t, size_t ) > func )
+            [[deprecated("Use for_each or for_each_parallel method instead")]]
+            inline void for_each_parallel_old( std::function< void( entity_id_t, std::size_t ) > func )
             {
                 std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
                 auto valid_comp = get_component< entity_validation_t >( );
@@ -247,6 +219,39 @@ namespace ztech::ecs
                     threads[ thread_index ]->join( );
                     threads[ thread_index ].reset( );
                 }
+            }
+
+            /**
+             * Iterating through valid entity ids parallel with thread id
+             * @param in_func
+             */
+            template< std::size_t N >
+            inline void for_each_parallel( std::function< void( entity_id_t, std::size_t ) > func )
+            {
+                #if USING_CPP17
+                    std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
+                    auto valid_comp = get_component< entity_validation_t >( );
+                    const entity_id_t size = valid_comp->size( );
+                    const size_t part_size = size / N;
+                    entity_id_t start_id = 0;
+                    std::for_each( std::execution::par,
+                        (const char*)nullptr,
+                        (const char*)N,
+                        [&func, &part_size, &size, &valid_comp]( const char& thread_index  )
+                        {
+                            entity_id_t start_id = std::size_t( &thread_index ) * part_size;
+                            entity_id_t end_id;
+                            if ( std::size_t( &thread_index ) + 1 == N ) end_id = size;
+                            else end_id = start_id + part_size;
+                            for ( int index = start_id; index < end_id; index++ )
+                            {
+                                if ( valid_comp->at( index ).valid ) func( index, std::size_t( &thread_index ) );
+                            }
+                        }
+                    );
+                #else
+                    for_each< std::size_t >( func, 0 );
+                #endif
             }
     };
 };

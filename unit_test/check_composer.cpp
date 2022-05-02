@@ -11,7 +11,7 @@ constexpr size_t entity_count = 100;
 static ztech::ecs::composer global_composer;
 static std::shared_ptr< ztech::ecs::entity_array > car_entities;
 static std::shared_ptr< ztech::ecs::system > car_system;
-static std::atomic< int > system_excution_count = 0;
+static std::atomic< size_t > system_excution_count = 0;
 
 
 void move_car( std::shared_ptr< ztech::ecs::entity_array > arr, ztech::ecs::entity_id_t id, float deltaSeconds )
@@ -120,7 +120,7 @@ int main( int argc, char* argv[] )
 
     {
         printf( "Count with ForEach\n" );
-        int count = 0;
+        size_t count = 0;
         car_entities->for_each( [&count]( ztech::ecs::entity_id_t id )
         {
             count++;
@@ -135,8 +135,8 @@ int main( int argc, char* argv[] )
 
     {
         printf( "Count with Template ForEach\n" );
-        int count = 0;
-        car_entities->for_each< int* >( []( int* count, ztech::ecs::entity_id_t id )
+        size_t count = 0;
+        car_entities->for_each< size_t* >( []( ztech::ecs::entity_id_t id, size_t* count )
         {
             count[0]+=1;
         }, &count );
