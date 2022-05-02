@@ -225,32 +225,24 @@ namespace ztech::ecs
              * Iterating through valid entity ids parallel with thread id
              * @param in_func
              */
-            template< std::size_t N >
-            inline void for_each_parallel( std::function< void( entity_id_t, std::size_t ) > func )
+            inline void for_each_parallel( std::function< void( entity_id_t ) > func )
             {
                 #if USING_CPP17
                     std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
                     auto valid_comp = get_component< entity_validation_t >( );
-                    const entity_id_t size = valid_comp->size( );
-                    const size_t part_size = size / N;
-                    entity_id_t start_id = 0;
                     std::for_each( std::execution::par,
                         (const char*)nullptr,
-                        (const char*)N,
-                        [&func, &part_size, &size, &valid_comp]( const char& thread_index  )
+                        (const char*)valid_comp->size( ),
+                        [&func, &valid_comp]( const char& index  )
                         {
-                            entity_id_t start_id = std::size_t( &thread_index ) * part_size;
-                            entity_id_t end_id;
-                            if ( std::size_t( &thread_index ) + 1 == N ) end_id = size;
-                            else end_id = start_id + part_size;
-                            for ( int index = start_id; index < end_id; index++ )
-                            {
-                                if ( valid_comp->at( index ).valid ) func( index, std::size_t( &thread_index ) );
-                            }
+                            if ( valid_comp->at( entity_id_t( &index ) ).valid ) func( entity_id_t( &index ) );
                         }
                     );
                 #else
-                    for_each< std::size_t >( func, 0 );
+                    for_each_parallel_old< 8 >( [&func]( entity_id_t _id, std::size_t _th )
+                    {
+                        func( _id );
+                    });
                 #endif
             }
     };

@@ -60,7 +60,7 @@ namespace ztech::ecs
                 if ( ! test( arr ) ) return;
                 for ( auto it = std::begin( functions ); it != std::end( functions ); it++ )
                 {
-                    arr->for_each_parallel< N >( std::bind( *it, arr, std::placeholders::_1, deltaSeconds ) );
+                    arr->for_each_parallel( std::bind( *it, arr, std::placeholders::_1, deltaSeconds ) );
                 }
             }
     };

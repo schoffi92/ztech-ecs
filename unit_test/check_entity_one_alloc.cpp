@@ -57,7 +57,7 @@ int main( int argc, char* argv[] )
         printf( "Trying to for_each parallel\n" );
         std::atomic< size_t > count = 0;
         auto start = std::chrono::steady_clock::now( );
-        global_entities.for_each_parallel< 2 >( [&count, &start]( ztech::ecs::entity_id_t _id, std::size_t thread_index )
+        global_entities.for_each_parallel( [&count, &start]( ztech::ecs::entity_id_t _id )
         {
             using namespace std::chrono_literals;
             ++count;
@@ -92,7 +92,7 @@ int main( int argc, char* argv[] )
         printf( "Trying to for_each parallel\n" );
         std::atomic< size_t > count = 0;
         auto start = std::chrono::steady_clock::now( );
-        global_entities.for_each_parallel< 2 >( [&count, &start]( ztech::ecs::entity_id_t _id, std::size_t thread_index )
+        global_entities.for_each_parallel( [&count, &start]( ztech::ecs::entity_id_t _id )
         {
             using namespace std::chrono_literals;
             ++count;
@@ -124,7 +124,7 @@ int main( int argc, char* argv[] )
 
         auto twocore_start = std::chrono::steady_clock::now( );
         count = 0;
-        global_entities.for_each_parallel< 8 >( [&count, &results]( ztech::ecs::entity_id_t _id, std::size_t thread_index )
+        global_entities.for_each_parallel( [&count, &results]( ztech::ecs::entity_id_t _id )
         {
             ++count;
             auto i = sqrt( double(_id) );
@@ -134,7 +134,21 @@ int main( int argc, char* argv[] )
         auto twocore_dur = std::chrono::duration_cast< std::chrono::microseconds >( twocore_end - twocore_start );
         printf( "TwoThread: Time: %zu, Count: %zu\n", twocore_dur.count( ), count.load( ) );
         if ( count != new_entity_count + 1 ) return 8;
-        if ( twocore_dur > ( onecore_dur * 1.5 ) ) return 8;
+        if ( twocore_dur > onecore_dur ) return 8;
+
+        // A test
+        auto allcore_start = std::chrono::steady_clock::now( );
+        count = 0;
+        global_entities.for_each_parallel_old< 32 >( [&count, &results]( ztech::ecs::entity_id_t _id, std::size_t thread_index )
+        {
+            ++count;
+            auto i = sqrt( double(_id) );
+            results[ _id ] = pow( i, _id );
+        });
+        auto allcore_end = std::chrono::steady_clock::now( );
+        auto allcore_dur = std::chrono::duration_cast< std::chrono::microseconds >( allcore_end - allcore_start );
+        printf( "OldThread: Time: %zu, Count: %zu ( for_each_parallel_old with 32 thread )\n", allcore_dur.count( ), count.load( ) );
+        if ( count != new_entity_count + 1 ) return 8;
     }
 
     printf( "Success\n" );
