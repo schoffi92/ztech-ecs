@@ -70,7 +70,9 @@ int main( int argc, char* argv[] )
     if ( test_with_entity_count< 100 >( ) != 0 ) return 1;
     if ( test_with_entity_count< 1000 >( ) != 0 ) return 2;
     if ( test_with_entity_count< 10000 >( ) != 0 ) return 3;
+    if ( test_with_entity_count< 100000 >( ) != 0 ) return 3;
     if ( test_with_entity_count< 1000000 >( ) != 0 ) return 4;
+    //if ( test_with_entity_count< 2000000 >( ) != 0 ) return 5; @TODO: Above 1M it dies with segment fault
 
     printf( "Success\n" );
     return 0;
