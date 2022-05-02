@@ -12,6 +12,7 @@ namespace ztech::ecs
         virtual void reset( entity_id_t id ) = 0;
         virtual void* get( entity_id_t id ) = 0;
         virtual size_t size( ) const = 0;
+        virtual void clear( ) = 0;
 
         virtual ~icomponent_array_interface( ) = default;
     };
@@ -39,6 +40,7 @@ namespace ztech::ecs
         virtual void* get( entity_id_t id ) override { return &datas[ id ]; }
         virtual size_t size( ) const override { return datas.size( ); }
         virtual void reset( entity_id_t id ) override { datas[ id ] = T{ }; }
+        virtual void clear( ) override { datas.clear( ); }
 
         // for iteration
         inline const T* begin( ) const { return datas.cbegin( ); }

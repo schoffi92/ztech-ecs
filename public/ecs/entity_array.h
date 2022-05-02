@@ -129,6 +129,15 @@ namespace ztech::ecs
             void free( const std::vector< entity_id_t >& ids );
 
             /**
+             * Delete all entities
+             */
+            inline void clear( )
+            {
+                std::unique_lock< std::shared_mutex > lock( component_arrays_mutex );
+                for ( auto [ key, comp ] : component_arrays ) comp->clear( );
+            }
+
+            /**
              * Iterating through valid entities with a reference of a component
              * @param in_func
              */
@@ -207,7 +216,7 @@ namespace ztech::ecs
                     else end_id = start_id + part_size;
                     threads[ thread_index ] = std::make_unique< std::thread >( [&]( entity_id_t start, entity_id_t end, size_t thread_id )
                     {
-                        for ( int index = start; index < end; index++ )
+                        for ( int index = start; index < end && index < size; index++ )
                         {
                             if ( valid_comp->at( index ).valid ) func( index, thread_id );
                         }
