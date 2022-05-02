@@ -59,4 +59,10 @@ if( ENABLE_TESTS )
     add_executable( "ecscomposer" "unit_test/check_composer.cpp" "${SRC}" )
     target_link_libraries( "ecscomposer" "${ZTECH_ECS_LIBRARIES}" )
     add_test( "EcsComposer" "ecscomposer" )
+
+    # parallel tests
+    add_executable( "ecsforpar" "unit_test/check_parallel_for.cpp" "${SRC}" )
+    target_link_libraries( "ecsforpar" "${ZTECH_ECS_LIBRARIES}" )
+    add_test( "EcsParallelFor" "ecsforpar" )
+    
 endif( )
