@@ -42,7 +42,7 @@ int main( int argc, char* argv[] )
         });
         auto twocore_end = std::chrono::steady_clock::now( );
         auto twocore_dur = std::chrono::duration_cast< std::chrono::microseconds >( twocore_end - twocore_start );
-        printf( "TwoThread: Time: %zu, Count: %zu\n", twocore_dur.count( ), count.load( ) );
+        printf( "Parallel:  Time: %zu, Count: %zu\n", twocore_dur.count( ), count.load( ) );
         if ( count != new_entity_count ) return 1;
         if ( twocore_dur > onecore_dur ) return 1;
 
