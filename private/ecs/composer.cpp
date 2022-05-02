@@ -15,7 +15,7 @@ void ztech::ecs::composer::run( )
         std::for_each( std::execution::par
             , std::begin( composer_links )
             , std::end( composer_links )
-            , [&]( const std::pair< entity_array*, composer_link_t >& _pair )
+            , [&deltaSeconds]( const std::pair< entity_array*, composer_link_t >& _pair )
             {
                 const composer_link_t& link = _pair.second;
                 for ( auto sys : link.systems )
@@ -30,7 +30,7 @@ void ztech::ecs::composer::run( )
         
         for ( auto it = std::begin( composer_links ); it != std::end( composer_links ); it++ )
         {
-            threads[ thread_index ] = std::make_unique< std::thread >( [&]( const composer_link_t& link )
+            threads[ thread_index ] = std::make_unique< std::thread >( [&deltaSeconds]( const composer_link_t& link )
             {
                 for ( auto sys : link.systems )
                 {
