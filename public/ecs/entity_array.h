@@ -230,10 +230,10 @@ namespace ztech::ecs
                 #if USING_CPP17
                     std::shared_lock< std::shared_mutex > lock( component_arrays_mutex );
                     auto valid_comp = get_component< entity_validation_t >( );
-                    std::for_each( std::execution::par,
-                        (const char*)nullptr,
-                        (const char*)valid_comp->size( ),
-                        [&func, &valid_comp]( const char& index  )
+                    std::for_each( std::execution::par
+                        , (const char*)nullptr
+                        , (const char*)valid_comp->size( )
+                        , [&func, &valid_comp]( const char& index  )
                         {
                             if ( valid_comp->at( entity_id_t( &index ) ).valid ) func( entity_id_t( &index ) );
                         }
