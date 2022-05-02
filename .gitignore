@@ -12,4 +12,5 @@ CTestTestfile.cmake
 _deps
 
 # build folder
+linux_build
 build
